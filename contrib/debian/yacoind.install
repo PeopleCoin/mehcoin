@@ -1,0 +1,2 @@
+debian/bin/mehcoind usr/bin
+src/mehcoind usr/lib/mehcoin

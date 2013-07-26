@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+# -*- mode: makefile; coding: utf-8 -*-
+
+#DEB_MAKE_CHECK_TARGET = test_mehcoin
+#build/mehcoind::
+#	$(if $(filter nocheck,$(DEB_BUILD_OPTIONS)),,src/test_mehcoin)
+
+DEB_INSTALL_EXAMPLES_mehcoind += debian/examples/*
+DEB_INSTALL_MANPAGES_mehcoind += debian/manpages/*
+
+%:
+	dh --with bash-completion $@
+
+override_dh_auto_build:
+	cd src; $(MAKE) -f makefile.unix mehcoind
+	$(MAKE)
+
+override_dh_auto_clean:
+	if [ -f Makefile ]; then $(MAKE) clean; else rm -rf build/; rm -f mehcoin-qt; fi
+	cd src; $(MAKE) -f makefile.unix clean
+
+override_dh_auto_configure:
+	qmake mehcoin-qt.pro USE_QRCODE=1
+
+override_dh_auto_test:
+	cd src; $(MAKE) -f makefile.unix test_mehcoin
+	src/test_mehcoin
+
+# Ensure wrapper is set executable
+binary-post-install/mehcoind:
+	chmod +x $(cdbs_curdestdir)usr/bin/mehcoind
+binary-post-install/mehcoin-qt:
+	chmod +x $(cdbs_curdestdir)usr/bin/mehcoin-qt
